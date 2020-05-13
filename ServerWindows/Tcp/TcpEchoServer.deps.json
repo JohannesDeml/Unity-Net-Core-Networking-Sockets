@@ -1,0 +1,52 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.0": {
+      "TcpEchoServer/1.0.0": {
+        "dependencies": {
+          "NDesk.Options.Core": "1.2.5",
+          "NetCoreServer": "3.0.13"
+        },
+        "runtime": {
+          "TcpEchoServer.dll": {}
+        }
+      },
+      "NDesk.Options.Core/1.2.5": {
+        "runtime": {
+          "lib/netcoreapp3.0/NDesk.Options.dll": {
+            "assemblyVersion": "1.2.5.0",
+            "fileVersion": "1.2.5.0"
+          }
+        }
+      },
+      "NetCoreServer/3.0.13": {
+        "runtime": {
+          "NetCoreServer.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TcpEchoServer/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "NDesk.Options.Core/1.2.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GmDDW6x3aFexqcNkTbAg+rck7ZgVQp/7bzvRpOhnrbPNGb/7h+YdMEzbtM0zTBudMOBZTRLNC/CEPRirmM+8bg==",
+      "path": "ndesk.options.core/1.2.5",
+      "hashPath": "ndesk.options.core.1.2.5.nupkg.sha512"
+    },
+    "NetCoreServer/3.0.13": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
