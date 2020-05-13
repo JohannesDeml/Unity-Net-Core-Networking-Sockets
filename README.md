@@ -1,6 +1,6 @@
 # NetCoreServer Unity Client
 
-![Unity Editor Screenshot](docs/preview.png)
+![Unity Editor Screenshot](./Docs/preview.png)
 
 *Proof of Concept implementation for using [NetCoreServer](https://github.com/chronoxor/NetCoreServer) with a unity client*
 
