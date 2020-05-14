@@ -1,0 +1,91 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.17.1"
+
+default_platform :ios
+
+platform :ios do
+  before_all do
+    ENV["UNITY_PRODUCT_NAME"] = ""
+    ENV["UNITY_BUNDLE_ID"] = ""
+    ENV["PROV_PROFILE"] = ""
+  end
+
+  desc "Build Unity project for iOS"
+  lane :build_unity do
+    unity(
+      execute_method: 'CommandLineBuild.BuildIos'
+    )
+  end
+
+  desc "build ipa file from Xcode project, which is ready for deployment on the AppStore"
+  lane :build_ipa do
+    match(
+      type: "appstore"
+    )
+    gym(
+      workspace: "Builds/ios/" + ENV["UNITY_PRODUCT_NAME"] + "/Unity-iPhone.xcworkspace",
+      output_directory: "Builds/ios",
+      output_name: ENV["UNITY_PRODUCT_NAME"]+".ipa",
+      export_options: {
+        method: "app-store",
+        provisioningProfiles: { 
+          ENV["UNITY_BUNDLE_ID"] => ENV["PROV_PROFILE"]
+        }
+      }
+    )
+    
+  end
+
+  desc "Upload ipa file to AppStoreConnect and check if AppStore site is configures correctly"
+  lane :upload do
+    pilot(
+      ipa: "Builds/ios/" + ENV["UNITY_PRODUCT_NAME"] + ".ipa", 
+      skip_submission:true
+    )
+    # precheck(
+    #   copyright_date: [level: :skip]
+    # )
+    say "Yey, it worked. A new build is ready to deploy on testflight!"
+  end
+
+  desc "Complete build process to get a new build for AppStoreConnect"
+  lane :beta do
+    build_unity
+    build_ipa
+    upload	
+  end
+
+  desc "Custom pipeline for quick tests"
+  lane :custom do
+    build_ipa
+    upload  
+  end
+
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+    say "I finished what you asked for. Did I do good?"
+  end
+
+  error do |lane, exception| 
+    say "Error when running fastlane"
+  end
+end
+
+
+# More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
+# All available actions: https://docs.fastlane.tools/actions
+
+# fastlane reports which actions are used
+# No personal data is recorded. Learn more at https://github.com/fastlane/enhancer
