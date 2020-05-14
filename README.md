@@ -11,6 +11,14 @@
 * Precompiled server executables for windows for easy testing
 * MemoryStream for small GC overhead
 * Easy to use queue for fetching the last received messages
+* Works with local and remote server
+
+
+
+## Tested Platforms
+
+* Android ✅
+* Windows ✅
 
 
 
@@ -18,20 +26,21 @@
 
 * Unity 2019.3.13f1 (Should work in older versions as well)
 * Precompiled servers an in [ServerWindows](./ServerWindows), run the bat you want to test
-* Open Unity SampleScene and hit play. 
-  * Once the client is connected the send button can be pressed to send messages to the server
+* Open Scenes/NetworkExampleClient.unity and hit play. 
 
 
 
 ## TODO
 
 * Split messages correctly for TCP
-* Put TCP and UDP client wrappers in own thread
-* Nonblocking connect to server
+
+
 
 ## Libraries
 
 * [NetCoreServer](https://github.com/chronoxor/NetCoreServer) by [Chronoxor](https://github.com/chronoxor/)
+
+
 
 ## License
 
