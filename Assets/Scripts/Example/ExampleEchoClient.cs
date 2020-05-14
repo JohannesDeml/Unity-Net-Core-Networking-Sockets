@@ -9,7 +9,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using NetCoreServer;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,9 +34,15 @@ namespace Supyrb
 
 		[SerializeField]
 		private int repeatMessage = 0;
-		
+
 		[SerializeField]
 		private Type type = Type.TCP;
+
+		[SerializeField]
+		private bool reconnect = true;
+
+		[SerializeField]
+		private float reconnectionDelay = 1.0f;
 
 		[SerializeField]
 		private InputField inputField = null;
@@ -44,6 +52,9 @@ namespace Supyrb
 
 		[SerializeField]
 		private Text serverResponseText = null;
+
+		[SerializeField]
+		private Text stateInfoText = null;
 
 		private IUnitySocketClient socketClient;
 		private byte[] buffer;
@@ -64,20 +75,30 @@ namespace Supyrb
 
 			buffer = new byte[socketClient.OptionReceiveBufferSize];
 
-			socketClient.Connect();
+			socketClient.OnConnectedEvent += OnConnected;
+			socketClient.OnDisconnectedEvent += OnDisconnected;
+			socketClient.OnErrorEvent += OnError;
+			socketClient.ConnectAsync();
 			button.onClick.AddListener(OnSendEcho);
 		}
 
 		private void OnDestroy()
 		{
-			socketClient.DisconnectAndStop();
+			socketClient.OnConnectedEvent -= OnConnected;
+			socketClient.OnDisconnectedEvent -= OnDisconnected;
+			socketClient.OnErrorEvent -= OnError;
+
+			reconnect = false;
+			socketClient.Disconnect();
 		}
 
 		private void Update()
 		{
+			UpdateStateInfoText();
 			if (!socketClient.IsConnected)
 			{
 				button.interactable = false;
+				return;
 			}
 
 			button.interactable = true;
@@ -92,11 +113,17 @@ namespace Supyrb
 			{
 				int length = socketClient.GetNextPackage(ref buffer);
 				var message = Encoding.UTF8.GetString(buffer, 0, length);
-				Debug.Log(message);
 				messages += message + "\n";
 			}
 
 			serverResponseText.text = messages;
+		}
+
+		private void UpdateStateInfoText()
+		{
+			var text = $"Server ip: {socketClient.Endpoint.Address}, Server port: {socketClient.Endpoint.Port}\n" +
+						$"Connecting: {socketClient.IsConnecting}, IsConnected: {socketClient.IsConnected}\n ";
+			stateInfoText.text = text;
 		}
 
 		private void OnSendEcho()
@@ -108,6 +135,39 @@ namespace Supyrb
 			{
 				socketClient.Send(message);
 			}
+		}
+
+		private void OnConnected()
+		{
+			Debug.Log($"TCP client connected a new session with Id {socketClient.Id}");
+		}
+
+		private void OnDisconnected()
+		{
+			Debug.Log($"TCP client disconnected a session with Id {socketClient.Id}");
+
+			if (reconnect)
+			{
+				ReconnectDelayedAsync();
+			}
+		}
+
+		private async void ReconnectDelayedAsync()
+		{
+			await Task.Delay((int) (reconnectionDelay * 1000));
+
+			if (socketClient.IsConnected || socketClient.IsConnecting)
+			{
+				return;
+			}
+
+			Debug.Log("Trying to reconnect");
+			socketClient.ConnectAsync();
+		}
+
+		private void OnError(SocketError error)
+		{
+			Debug.LogError($"TCP client caught an error with code {error}");
 		}
 	}
 }

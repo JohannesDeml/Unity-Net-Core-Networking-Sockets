@@ -8,16 +8,29 @@
 // </author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Net;
+using System.Net.Sockets;
+
 namespace NetCoreServer
 {
 	public interface IUnitySocketClient
 	{
+		event Action OnConnectedEvent;
+		event Action OnDisconnectedEvent;
+		event Action<SocketError> OnErrorEvent;
+
+		Guid Id { get; }
+		bool IsConnecting { get; }
 		bool IsConnected { get; }
+		IPEndPoint Endpoint { get; }
+		Socket Socket { get; }
 		bool Connect();
+		bool ConnectAsync();
 		bool Disconnect();
 		bool Reconnect();
-		void DisconnectAndStop();
-		
+		bool ReconnectAsync();
+
 
 		int OptionReceiveBufferSize { get; set; }
 		int OptionSendBufferSize { get; set; }

@@ -8,17 +8,19 @@
 // </author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
-using System.Threading;
-using UnityEngine;
 
 namespace NetCoreServer
 {
 	class UnityTcpClient : TcpClient, IUnitySocketClient
 	{
-		private bool stop;
+		public event Action OnConnectedEvent;
+		public event Action OnDisconnectedEvent;
+		public event Action<SocketError> OnErrorEvent;
+
 		private MemoryStream queueBuffer;
 		private Queue<BufferPointer> queueBufferPointer;
 
@@ -28,16 +30,6 @@ namespace NetCoreServer
 		{
 			queueBuffer = new MemoryStream(OptionReceiveBufferSize);
 			queueBufferPointer = new Queue<BufferPointer>();
-		}
-
-		public void DisconnectAndStop()
-		{
-			stop = true;
-			Disconnect();
-			while (IsConnected)
-			{
-				Thread.Yield();
-			}
 		}
 
 		public bool HasEnqueuedPackages()
@@ -72,22 +64,14 @@ namespace NetCoreServer
 
 		protected override void OnConnected()
 		{
-			Debug.Log($"TCP client connected a new session with Id {Id}");
+			OnConnectedEvent?.Invoke();
 			// Start receive datagrams
 			ReceiveAsync();
 		}
 
 		protected override void OnDisconnected()
 		{
-			Debug.Log($"TCP client disconnected a session with Id {Id}");
-			// Wait for a while...
-			Thread.Sleep(1000);
-
-			// Try to connect again
-			if (!stop)
-			{
-				Connect();
-			}
+			OnDisconnectedEvent?.Invoke();
 		}
 
 		protected override void OnReceived(byte[] buffer, long offset, long size)
@@ -102,7 +86,7 @@ namespace NetCoreServer
 
 		protected override void OnError(SocketError error)
 		{
-			Debug.LogError($"TCP client caught an error with code {error}");
+			OnErrorEvent?.Invoke(error);
 		}
 	}
 }

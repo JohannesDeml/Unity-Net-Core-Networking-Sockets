@@ -8,18 +8,20 @@
 // </author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using UnityEngine;
 
 namespace NetCoreServer
 {
 	class UnityUdpClient : UdpClient, IUnitySocketClient
 	{
-		private bool stop;
+		public event Action OnConnectedEvent;
+		public event Action OnDisconnectedEvent;
+		public event Action<SocketError> OnErrorEvent;
+
 		private MemoryStream queueBuffer;
 		private Queue<BufferPointer> queueBufferPointer;
 
@@ -31,14 +33,18 @@ namespace NetCoreServer
 			queueBufferPointer = new Queue<BufferPointer>();
 		}
 
-		public void DisconnectAndStop()
+		public bool IsConnecting { get; private set; } = false;
+
+		public bool ConnectAsync()
 		{
-			stop = true;
-			Disconnect();
-			while (IsConnected)
-			{
-				Thread.Yield();
-			}
+			// No need to do this async fro udp
+			return Connect();
+		}
+
+		public bool ReconnectAsync()
+		{
+			// No need to do this async fro udp
+			return Reconnect();
 		}
 
 		public bool HasEnqueuedPackages()
@@ -73,22 +79,14 @@ namespace NetCoreServer
 
 		protected override void OnConnected()
 		{
-			Debug.Log($"UDP client connected a new session with Id {Id}");
+			OnConnectedEvent?.Invoke();
 			// Start receive datagrams
 			ReceiveAsync();
 		}
 
 		protected override void OnDisconnected()
 		{
-			Debug.Log($"UDP client disconnected a session with Id {Id}");
-			// Wait for a while...
-			Thread.Sleep(1000);
-
-			// Try to connect again
-			if (!stop)
-			{
-				Connect();
-			}
+			OnDisconnectedEvent?.Invoke();
 		}
 
 		protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
@@ -103,7 +101,7 @@ namespace NetCoreServer
 
 		protected override void OnError(SocketError error)
 		{
-			Debug.LogError($"UDP client caught an error with code {error}");
+			OnErrorEvent?.Invoke(error);
 		}
 	}
 }
