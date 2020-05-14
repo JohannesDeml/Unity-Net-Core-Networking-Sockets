@@ -13,13 +13,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 
 namespace NetCoreServer
 {
 	class UnityUdpClient : UdpClient, IUnitySocketClient
 	{
+		/// <inheritdoc />
 		public event Action OnConnectedEvent;
+		/// <inheritdoc />
 		public event Action OnDisconnectedEvent;
+		/// <inheritdoc />
 		public event Action<SocketError> OnErrorEvent;
 
 		private MemoryStream queueBuffer;
@@ -33,25 +37,33 @@ namespace NetCoreServer
 			queueBufferPointer = new Queue<BufferPointer>();
 		}
 
+		/// <inheritdoc />
 		public bool IsConnecting { get; private set; } = false;
 
+		/// <summary>
+		/// Same as Connect, since async is not necessary for udp sockets
+		/// </summary>
+		/// <returns>True if connection is established</returns>
 		public bool ConnectAsync()
 		{
 			// No need to do this async fro udp
 			return Connect();
 		}
 
+		/// <inheritdoc />
 		public bool ReconnectAsync()
 		{
 			// No need to do this async fro udp
 			return Reconnect();
 		}
 
+		/// <inheritdoc />
 		public bool HasEnqueuedPackages()
 		{
 			return queueBufferPointer.Count > 0;
 		}
 
+		/// <inheritdoc />
 		public int GetNextPackage(ref byte[] array)
 		{
 			if (queueBufferPointer.Count == 0)
@@ -77,18 +89,35 @@ namespace NetCoreServer
 			return pointer.Length;
 		}
 
+		/// <inheritdoc />
 		protected override void OnConnected()
 		{
-			OnConnectedEvent?.Invoke();
+			try
+			{
+				OnConnectedEvent?.Invoke();
+			}
+			catch (Exception ex)
+			{
+				Debug.LogException(ex);
+			}
 			// Start receive datagrams
 			ReceiveAsync();
 		}
 
+		/// <inheritdoc />
 		protected override void OnDisconnected()
 		{
-			OnDisconnectedEvent?.Invoke();
+			try
+			{
+				OnDisconnectedEvent?.Invoke();
+			}
+			catch (Exception ex)
+			{
+				Debug.LogException(ex);
+			}
 		}
 
+		/// <inheritdoc />
 		protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
 		{
 			var start = (int) queueBuffer.Length;
@@ -99,9 +128,17 @@ namespace NetCoreServer
 			ReceiveAsync();
 		}
 
+		/// <inheritdoc />
 		protected override void OnError(SocketError error)
 		{
-			OnErrorEvent?.Invoke(error);
+			try
+			{
+				OnErrorEvent?.Invoke(error);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogException(ex);
+			}
 		}
 	}
 }
