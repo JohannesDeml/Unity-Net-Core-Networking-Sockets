@@ -15,10 +15,18 @@
 
 
 
-## Tested Platforms
+| Platform | Tested |
+| -------- | ------ |
+| Editor   | ✅      |
+| Android  | ✅      |
+| iOS      | ✅      |
+| Windows  | ✅      |
 
-* Android ✅
-* Windows ✅
+
+
+## Latest Release
+
+For built binaries take a look at the [latest release](../../releases/latest) 🎉
 
 
 
@@ -33,6 +41,7 @@
 ## TODO
 
 * Split messages correctly for TCP
+* Support Websockets
 
 
 
