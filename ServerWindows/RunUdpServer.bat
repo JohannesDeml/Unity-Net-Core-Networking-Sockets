@@ -1,3 +1,4 @@
-Udp\UdpEchoServer.exe -p 3333
+cd Udp
+UdpEchoServer.exe -p 3333
 
 PAUSE

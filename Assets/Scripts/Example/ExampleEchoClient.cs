@@ -24,7 +24,8 @@ namespace Supyrb
 		public enum Type
 		{
 			UDP,
-			TCP
+			TCP,
+			SSL
 		}
 
 		[SerializeField]
@@ -38,6 +39,9 @@ namespace Supyrb
 
 		[SerializeField]
 		private Type type = Type.TCP;
+
+		[SerializeField, Tooltip("Only needed for SSL Sockets")]
+		private SslCertificateAsset sslCertificateAsset = null;
 
 		[SerializeField]
 		private bool reconnect = true;
@@ -54,6 +58,9 @@ namespace Supyrb
 
 		[SerializeField]
 		private Button tcpConnectButton = null;
+
+		[SerializeField]
+		private Button sslConnectButton = null;
 
 		[SerializeField]
 		private Button udpConnectButton = null;
@@ -83,6 +90,7 @@ namespace Supyrb
 		{
 			disconnecting = false;
 			tcpConnectButton.onClick.AddListener(TriggerTcpConnect);
+			sslConnectButton.onClick.AddListener(TriggerSslConnect);
 			udpConnectButton.onClick.AddListener(TriggerUdpConnect);
 			disconnectButton.onClick.AddListener(TriggerDisconnect);
 			sendMessageButton.onClick.AddListener(OnSendEcho);
@@ -110,12 +118,17 @@ namespace Supyrb
 				case Type.TCP:
 					socketClient = new UnityTcpClient(serverIp, serverPort);
 					break;
+				case Type.SSL:
+					stateInfoText.text = $"Connecting with SSL file {sslCertificateAsset.GetCertPath()}";
+					var sslContext = sslCertificateAsset.GetContext();
+					socketClient = new UnitySslClient(sslContext, serverIp, serverPort);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 
 			buffer = new byte[socketClient.OptionReceiveBufferSize];
-			
+
 			socketClient.OnConnectedEvent += OnConnected;
 			socketClient.OnDisconnectedEvent += OnDisconnected;
 			socketClient.OnErrorEvent += OnError;
@@ -146,6 +159,7 @@ namespace Supyrb
 			sendMessageButton.interactable = connected;
 			disconnectButton.interactable = connected;
 			tcpConnectButton.interactable = !connected;
+			sslConnectButton.interactable = !connected;
 			udpConnectButton.interactable = !connected;
 
 			if (!connected)
@@ -173,7 +187,6 @@ namespace Supyrb
 		{
 			if (socketClient == null)
 			{
-				stateInfoText.text = "Connect to either TCP or UDP by pressing the buttons";
 				return;
 			}
 
@@ -222,6 +235,12 @@ namespace Supyrb
 		private void TriggerTcpConnect()
 		{
 			type = Type.TCP;
+			ApplyInputAndConnect();
+		}
+
+		private void TriggerSslConnect()
+		{
+			type = Type.SSL;
 			ApplyInputAndConnect();
 		}
 
