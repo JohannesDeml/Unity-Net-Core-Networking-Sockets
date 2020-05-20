@@ -8,7 +8,7 @@
 // </author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.IO;
+using System;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -20,7 +20,7 @@ namespace NetCoreServer
 	public class SslCertificateAsset : ScriptableObject, ISerializationCallbackReceiver
 	{
 		[SerializeField]
-		private StreamingAssetPath certificatePath = null;
+		private ByteFileAsset certificateBytesAsset = null;
 
 		[SerializeField]
 		private string password = string.Empty;
@@ -29,17 +29,20 @@ namespace NetCoreServer
 
 		private SslContext sslContext;
 
-		public string GetCertPath()
-		{
-			return certificatePath.GetFullPath();
-		}
-
 		public SslContext GetContext()
 		{
 			if (sslContext == null)
 			{
-				X509Certificate2 cert = new X509Certificate2(GetCertPath(), password);
-				sslContext = new SslContext(protocols, cert, OnValidationCallback);
+				var certBytes = certificateBytesAsset.Bytes;
+				try
+				{
+					X509Certificate2 cert = new X509Certificate2(certBytes, password);
+					sslContext = new SslContext(protocols, cert, OnValidationCallback);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogException(ex);
+				}
 			}
 
 			return sslContext;

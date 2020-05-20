@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="StreamingAssetPath.cs">
+// <copyright file="ByteFileAsset.cs">
 //   Copyright (c) 2020 Johannes Deml. All rights reserved.
 // </copyright>
 // <author>
@@ -9,30 +9,23 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
-using System.IO;
 using UnityEngine;
 
 namespace NetCoreServer
 {
 	[Serializable]
-	public class StreamingAssetPath
+	public class ByteFileAsset
 	{
 		[SerializeField]
-		private string path;
+		private string guid;
 
-		public StreamingAssetPath(string path)
+		[SerializeField]
+		private byte[] bytes;
+
+		public byte[] Bytes => bytes;
+
+		public ByteFileAsset()
 		{
-			this.path = path;
-		}
-
-		public string GetFullPath()
-		{
-			if (string.IsNullOrEmpty(path))
-			{
-				return string.Empty;
-			}
-
-			return Path.Combine(Application.streamingAssetsPath, path);
 		}
 	}
 }

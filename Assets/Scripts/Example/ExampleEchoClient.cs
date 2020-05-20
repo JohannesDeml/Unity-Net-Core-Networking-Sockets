@@ -119,7 +119,6 @@ namespace Supyrb
 					socketClient = new UnityTcpClient(serverIp, serverPort);
 					break;
 				case Type.SSL:
-					stateInfoText.text = $"Connecting with SSL file {sslCertificateAsset.GetCertPath()}";
 					var sslContext = sslCertificateAsset.GetContext();
 					socketClient = new UnitySslClient(sslContext, serverIp, serverPort);
 					break;
@@ -138,6 +137,11 @@ namespace Supyrb
 		[ContextMenu("Disconnect")]
 		private void Disconnect()
 		{
+			if (socketClient == null)
+			{
+				return;
+			}
+
 			disconnecting = true;
 			socketClient.Disconnect();
 
