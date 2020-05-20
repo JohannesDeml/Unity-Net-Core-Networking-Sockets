@@ -184,7 +184,7 @@ namespace Supyrb
 				messages += message + "\n";
 			}
 
-			serverResponseText.text = messages;
+			serverResponseText.text = messages + serverResponseText.text;
 		}
 
 		private void UpdateStateInfoText()
