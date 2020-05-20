@@ -41,8 +41,10 @@ For built binaries take a look at the [latest release](../../releases/latest) ğŸ
 
 ## TODO
 
-* Split messages correctly for TCP
+* Split messages back into the sent chunks
 * Support Websockets
+* SSL repeating messages results in reconnections
+* Repeating Asnyc sending results in some packages not being sent
 
 
 

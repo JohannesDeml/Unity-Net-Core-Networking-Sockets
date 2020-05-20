@@ -270,11 +270,11 @@ namespace Supyrb
 		private void OnSendEcho()
 		{
 			var message = Encoding.UTF8.GetBytes(messageInputField.text);
-			socketClient.Send(message);
 
-			for (int i = 0; i < repeatMessage; i++)
+			for (int i = 0; i < 1 + repeatMessage; i++)
 			{
-				socketClient.SendAsync(message);
+				// Async sending results in some packets not being sent or stuffed together
+				socketClient.Send(message);
 			}
 		}
 
