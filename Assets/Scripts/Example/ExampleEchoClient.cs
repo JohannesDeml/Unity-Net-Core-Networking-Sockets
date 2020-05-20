@@ -23,9 +23,9 @@ namespace Supyrb
 	{
 		public enum Type
 		{
-			UDP,
-			TCP,
-			SSL
+			Ssl,
+			Tcp,
+			Udp
 		}
 
 		[SerializeField]
@@ -38,7 +38,7 @@ namespace Supyrb
 		private int repeatMessage = 0;
 
 		[SerializeField]
-		private Type type = Type.TCP;
+		private Type type = Type.Tcp;
 
 		[SerializeField, Tooltip("Only needed for SSL Sockets")]
 		private SslCertificateAsset sslCertificateAsset = null;
@@ -57,10 +57,10 @@ namespace Supyrb
 		private InputField serverPortInput = null;
 
 		[SerializeField]
-		private Button tcpConnectButton = null;
+		private Button sslConnectButton = null;
 
 		[SerializeField]
-		private Button sslConnectButton = null;
+		private Button tcpConnectButton = null;
 
 		[SerializeField]
 		private Button udpConnectButton = null;
@@ -112,15 +112,15 @@ namespace Supyrb
 
 			switch (type)
 			{
-				case Type.UDP:
-					socketClient = new UnityUdpClient(serverIp, serverPort);
-					break;
-				case Type.TCP:
-					socketClient = new UnityTcpClient(serverIp, serverPort);
-					break;
-				case Type.SSL:
+				case Type.Ssl:
 					var sslContext = sslCertificateAsset.GetContext();
 					socketClient = new UnitySslClient(sslContext, serverIp, serverPort);
+					break;
+				case Type.Tcp:
+					socketClient = new UnityTcpClient(serverIp, serverPort);
+					break;
+				case Type.Udp:
+					socketClient = new UnityUdpClient(serverIp, serverPort);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -162,8 +162,8 @@ namespace Supyrb
 			bool connected = socketClient != null && socketClient.IsConnected;
 			sendMessageButton.interactable = connected;
 			disconnectButton.interactable = connected;
-			tcpConnectButton.interactable = !connected;
 			sslConnectButton.interactable = !connected;
+			tcpConnectButton.interactable = !connected;
 			udpConnectButton.interactable = !connected;
 
 			if (!connected)
@@ -236,21 +236,21 @@ namespace Supyrb
 			Debug.LogError($"{socketClient.GetType()} caught an error with code {error}");
 		}
 
-		private void TriggerTcpConnect()
+		private void TriggerSslConnect()
 		{
-			type = Type.TCP;
+			type = Type.Ssl;
 			ApplyInputAndConnect();
 		}
 
-		private void TriggerSslConnect()
+		private void TriggerTcpConnect()
 		{
-			type = Type.SSL;
+			type = Type.Tcp;
 			ApplyInputAndConnect();
 		}
 
 		private void TriggerUdpConnect()
 		{
-			type = Type.UDP;
+			type = Type.Udp;
 			ApplyInputAndConnect();
 		}
 
@@ -274,7 +274,7 @@ namespace Supyrb
 
 			for (int i = 0; i < repeatMessage; i++)
 			{
-				socketClient.Send(message);
+				socketClient.SendAsync(message);
 			}
 		}
 

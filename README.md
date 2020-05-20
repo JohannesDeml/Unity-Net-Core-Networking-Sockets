@@ -6,21 +6,22 @@
 
 ## Features
 
-* Supports UDP & TCP
-* UdpClient and TcpClient from NetCoreServer Repo
+* Supports SSL, TCP & UDP
+* Client code from NetCoreServer with wrappers for unity usage
 * Precompiled server executables for windows for easy testing
-* MemoryStream for small GC overhead
-* Easy to use queue for fetching the last received messages
-* Works with local and remote server
+* Small GC overhead - Usage of MemoryStream
+* Async send and receive - Does not block the Main Thread
+* Easy to use - Queue for fetching the last received messages
+* Tested with local and remote server
 
 
 
-| Platform | Tested |
-| -------- | ------ |
-| Editor   | ✅      |
-| Android  | ✅      |
-| iOS      | ✅      |
-| Windows  | ✅      |
+| Platform | SSL  | TCP  | UDP  |
+| -------- | ---- | ---- | ---- |
+| Editor   | ✅    | ✅    | ✅    |
+| Android  | ✅    | ✅    | ✅    |
+| iOS      | ✅    | ✅    | ✅    |
+| Windows  | ✅    | ✅    | ✅    |
 
 
 
