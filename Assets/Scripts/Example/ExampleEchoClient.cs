@@ -38,6 +38,9 @@ namespace Supyrb
 		private int repeatMessage = 0;
 
 		[SerializeField]
+		private bool sendAsync = true;
+
+		[SerializeField]
 		private Type type = Type.Tcp;
 
 		[SerializeField, Tooltip("Only needed for SSL Sockets")]
@@ -271,10 +274,29 @@ namespace Supyrb
 		{
 			var message = Encoding.UTF8.GetBytes(messageInputField.text);
 
+			if (sendAsync)
+			{
+				SendAsync(message);
+			}
+			else
+			{
+				Send(message);
+			}
+		}
+
+		private void Send(byte[] message)
+		{
 			for (int i = 0; i < 1 + repeatMessage; i++)
 			{
-				// Async sending results in some packets not being sent or stuffed together
 				socketClient.Send(message);
+			}
+		}
+
+		private void SendAsync(byte[] message)
+		{
+			for (int i = 0; i < 1 + repeatMessage; i++)
+			{
+				socketClient.SendAsync(message);
 			}
 		}
 

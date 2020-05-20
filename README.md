@@ -42,7 +42,7 @@ For built binaries take a look at the [latest release](../../releases/latest) ğŸ
 ## TODO
 
 * Split messages back into the sent chunks
-* Repeating Asnyc sending results in some packages not being sent
+* Repeating Asnyc sending results in some packages not being sent for UDP
 * Support Websockets
 
 
