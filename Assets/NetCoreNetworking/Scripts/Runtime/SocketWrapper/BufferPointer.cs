@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ByteFileAsset.cs">
+// <copyright file="BufferPointer.cs">
 //   Copyright (c) 2020 Johannes Deml. All rights reserved.
 // </copyright>
 // <author>
@@ -8,24 +8,17 @@
 // </author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using UnityEngine;
-
 namespace NetCoreServer
 {
-	[Serializable]
-	public class ByteFileAsset
+	public readonly struct BufferPointer
 	{
-		[SerializeField]
-		private string guid;
+		public readonly int Offset;
+		public readonly int Length;
 
-		[SerializeField]
-		private byte[] bytes;
-
-		public byte[] Bytes => bytes;
-
-		public ByteFileAsset()
+		public BufferPointer(int offset, int length)
 		{
+			Offset = offset;
+			Length = length;
 		}
 	}
 }
