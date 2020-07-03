@@ -28,15 +28,19 @@ namespace Supyrb
 			Udp
 		}
 
+		#region SettingFields
+
 		[SerializeField]
 		private string serverIp = "127.0.0.1";
 
 		[SerializeField]
 		private int serverPort = 3333;
 
+		[Tooltip("Number of times the message is repeated to simulate more requests.")]
 		[SerializeField]
 		private int repeatMessage = 0;
 
+		[Tooltip("Non-blocking async sending. Not recommended for UDP (those are already non-blocking)")]
 		[SerializeField]
 		private bool sendAsync = true;
 
@@ -46,11 +50,16 @@ namespace Supyrb
 		[SerializeField, Tooltip("Only needed for SSL Sockets")]
 		private SslCertificateAsset sslCertificateAsset = null;
 
+		[Tooltip("Try to reconnect if connection could not be established or was lost")]
 		[SerializeField]
 		private bool reconnect = true;
 
 		[SerializeField]
 		private float reconnectionDelay = 1.0f;
+
+		#endregion
+		
+		#region UiFields
 
 		[Header("Settings Input")]
 		[SerializeField]
@@ -84,7 +93,12 @@ namespace Supyrb
 		[SerializeField]
 		private Text stateInfoText = null;
 
+		#endregion
+
+		// Used implementation as interface to allow easy switching
 		private IUnitySocketClient socketClient;
+
+		// Buffer will be used for sending and receiving to avoid creating garbage
 		private byte[] buffer;
 		private bool disconnecting;
 		private bool applicationQuitting;
@@ -273,7 +287,6 @@ namespace Supyrb
 		private void OnSendEcho()
 		{
 			var message = Encoding.UTF8.GetBytes(messageInputField.text);
-
 			if (sendAsync)
 			{
 				SendAsync(message);
