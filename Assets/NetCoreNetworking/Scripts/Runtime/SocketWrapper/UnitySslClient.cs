@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace NetCoreServer
 {
-	class UnitySslClient : SslClient, IUnitySocketClient
+	public class UnitySslClient : SslClient, IUnitySocketClient
 	{
 		/// <inheritdoc />
 		public event Action OnConnectedEvent;

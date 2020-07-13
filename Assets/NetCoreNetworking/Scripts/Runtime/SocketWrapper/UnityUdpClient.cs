@@ -17,7 +17,7 @@ using UnityEngine;
 
 namespace NetCoreServer
 {
-	class UnityUdpClient : UdpClient, IUnitySocketClient
+	public class UnityUdpClient : UdpClient, IUnitySocketClient
 	{
 		/// <inheritdoc />
 		public event Action OnConnectedEvent;

@@ -1,0 +1,17 @@
+{
+    "name": "deml.netcore-networking.editor",
+    "references": [
+        "GUID:e1af3df6500b1c342803418d4e3e040f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
