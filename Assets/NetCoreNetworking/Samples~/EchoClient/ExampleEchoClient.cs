@@ -15,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetCoreServer;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Supyrb
 {
@@ -27,6 +26,9 @@ namespace Supyrb
 			Tcp,
 			Udp
 		}
+
+		[SerializeField]
+		private ExampleEchoClientUi ui = null;
 
 		#region SettingFields
 
@@ -58,42 +60,6 @@ namespace Supyrb
 		private float reconnectionDelay = 1.0f;
 
 		#endregion
-		
-		#region UiFields
-
-		[Header("Settings Input")]
-		[SerializeField]
-		private InputField serverIpInput = null;
-
-		[SerializeField]
-		private InputField serverPortInput = null;
-
-		[SerializeField]
-		private Button sslConnectButton = null;
-
-		[SerializeField]
-		private Button tcpConnectButton = null;
-
-		[SerializeField]
-		private Button udpConnectButton = null;
-
-		[SerializeField]
-		private Button disconnectButton = null;
-
-		[Header("Connection")]
-		[SerializeField]
-		private InputField messageInputField = null;
-
-		[SerializeField]
-		private Button sendMessageButton = null;
-
-		[SerializeField]
-		private Text serverResponseText = null;
-
-		[SerializeField]
-		private Text stateInfoText = null;
-
-		#endregion
 
 		// Used implementation as interface to allow easy switching
 		private IUnitySocketClient socketClient;
@@ -106,11 +72,6 @@ namespace Supyrb
 		private void Start()
 		{
 			disconnecting = false;
-			tcpConnectButton.onClick.AddListener(TriggerTcpConnect);
-			sslConnectButton.onClick.AddListener(TriggerSslConnect);
-			udpConnectButton.onClick.AddListener(TriggerUdpConnect);
-			disconnectButton.onClick.AddListener(TriggerDisconnect);
-			sendMessageButton.onClick.AddListener(OnSendEcho);
 		}
 
 		private void OnDestroy()
@@ -152,7 +113,7 @@ namespace Supyrb
 		}
 
 		[ContextMenu("Disconnect")]
-		private void Disconnect()
+		public void Disconnect()
 		{
 			if (socketClient == null)
 			{
@@ -175,20 +136,10 @@ namespace Supyrb
 
 		private void Update()
 		{
-			UpdateStateInfoText();
+			ui.UpdateState(socketClient);
 			bool connected = socketClient != null && socketClient.IsConnected;
-			sendMessageButton.interactable = connected;
-			disconnectButton.interactable = connected;
-			sslConnectButton.interactable = !connected;
-			tcpConnectButton.interactable = !connected;
-			udpConnectButton.interactable = !connected;
 
-			if (!connected)
-			{
-				return;
-			}
-
-			if (!socketClient.HasEnqueuedPackages())
+			if (!connected || !socketClient.HasEnqueuedPackages())
 			{
 				return;
 			}
@@ -201,19 +152,7 @@ namespace Supyrb
 				messages += message + "\n";
 			}
 
-			serverResponseText.text = messages + serverResponseText.text;
-		}
-
-		private void UpdateStateInfoText()
-		{
-			if (socketClient == null)
-			{
-				return;
-			}
-
-			var text = $"Server ip: {socketClient.Endpoint.Address}, Server port: {socketClient.Endpoint.Port}\n" +
-						$"Connecting: {socketClient.IsConnecting}, IsConnected: {socketClient.IsConnected}\n ";
-			stateInfoText.text = text;
+			ui.AddResponseText(messages);
 		}
 
 		private void OnConnected()
@@ -253,40 +192,21 @@ namespace Supyrb
 			Debug.LogError($"{socketClient.GetType()} caught an error with code {error}");
 		}
 
-		private void TriggerSslConnect()
-		{
-			type = Type.Ssl;
-			ApplyInputAndConnect();
-		}
-
-		private void TriggerTcpConnect()
-		{
-			type = Type.Tcp;
-			ApplyInputAndConnect();
-		}
-
-		private void TriggerUdpConnect()
-		{
-			type = Type.Udp;
-			ApplyInputAndConnect();
-		}
-
 		private void TriggerDisconnect()
 		{
 			Disconnect();
 		}
 
-		private void ApplyInputAndConnect()
+		public void ApplyInputAndConnect(string serverIpInput, int serverPortInput, Type typeInput)
 		{
-			serverIp = serverIpInput.text;
-			serverPort = int.Parse(serverPortInput.text);
+			serverIp = serverIpInput;
+			serverPort = serverPortInput;
+			type = typeInput;
 			Connect();
 		}
 
-		[ContextMenu("Send message")]
-		private void OnSendEcho()
+		public void SendEcho(byte[] message)
 		{
-			var message = Encoding.UTF8.GetBytes(messageInputField.text);
 			if (sendAsync)
 			{
 				SendAsync(message);
