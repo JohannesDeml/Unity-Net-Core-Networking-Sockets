@@ -1,6 +1,6 @@
 {
 	"name": "com.deml.netcore-networking",
-	"displayName": ".Net Core Networking Sockets",
+	"displayName": "Net Core Networking Sockets",
 	"description": "Socket Client for NetCoreServer supporting TCP,UDP and SSL Sockets. Minimal overhead networking solution with async sending and receiving to enable maximum throughput.",
 	"keywords": [
 		"Sockets",
