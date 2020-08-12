@@ -10,10 +10,11 @@
 		".Net Core",
 		"Networking",
 		"Client",
-		"Server"
+		"Server",
+		"Dot Net"
 	],
 	"category": "network",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"unity": "2018.1",
 	"dependencies": {
 		
