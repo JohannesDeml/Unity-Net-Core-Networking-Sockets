@@ -1,4 +1,4 @@
-# NetCoreServer Unity Client
+# Unity .Net Core Networking Client
 
 ![Unity Editor Screenshot](./Docs/preview.png)
 
@@ -54,6 +54,15 @@ $ openupm openupm add com.deml.netcore-networking
 * Unity 2020.1.0f1 (Works with older versions as well)
 * Precompiled servers an in [ServerWindows](./ServerWindows), run the bat you want to test
 * Open `Samples/EchoClient/Scenes/NetworkExampleClient.unity` and hit play. 
+
+
+
+## Troubleshooting
+
+* I can't find the samples
+  * The samples are stored in `Assets/NetCoreNetworking/Samples~`. A directory symlink at `Assets/Samples` points to the samples. If you see an empty Samples folder in your unity project, try to delete the meta files from the root folders in the samples (e.g. `EchoClient.meta`).
+* The precompiled server scripts don't work
+  * Install Dotnet from https://dotnet.microsoft.com/download
 
 
 
