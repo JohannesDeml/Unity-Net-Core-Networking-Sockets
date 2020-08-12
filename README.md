@@ -2,7 +2,10 @@
 
 ![Unity Editor Screenshot](./Docs/preview.png)
 
-*Proof of Concept implementation for using [NetCoreServer](https://github.com/chronoxor/NetCoreServer) with a unity client*
+*Lightweight Unity client for [NetCoreServer](https://github.com/chronoxor/NetCoreServer)*
+[![openupm](https://img.shields.io/npm/v/com.deml.netcore-networking?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.deml.netcore-networking/) [![](https://img.shields.io/github/release-date/JohannesDeml/Unity-Net-Core-Networking-Sockets.svg)](https://github.com/supyrb/JohannesDeml/Unity-Net-Core-Networking-Sockets) [![Unity 2018.1 or later](https://img.shields.io/badge/unity-2018.1%20or%20later-green.svg?logo=unity&cacheSeconds=2592000)](https://unity3d.com/get-unity/download/archive)
+
+
 
 ## Features
 
@@ -14,28 +17,43 @@
 * Easy to use - Queue for fetching the last received messages
 * Tested with local and remote server
 
-
-
 | Platform | SSL  | TCP  | UDP  |
-| -------- | ---- | ---- | ---- |
-| Editor   | ✅    | ✅    | ✅    |
-| Android  | ✅    | ✅    | ✅    |
-| iOS      | ✅    | ✅    | ✅    |
-| Windows  | ✅    | ✅    | ✅    |
+| -------- | :--: | :--: | :--: |
+| Editor   |  ✔️   |  ✔️   |  ✔️   |
+| Android  |  ✔️   |  ✔️   |  ✔️   |
+| iOS      |  ✔️   |  ✔️   |  ✔️   |
+| Windows  |  ✔️   |  ✔️   |  ✔️   |
 
 
 
-## Latest Release
+## Installation
 
-For built binaries take a look at the [latest release](../../releases/latest) 🎉
+You can either install the package through the package manager with [OpenUPM](https://openupm.com/) (Recommended) or download the scripts as a unity package
+
+### OpenUPM
+
+```sh
+# Install openupm-cli
+$ npm install -g openupm-cli
+
+# Enter your unity project folder
+$ cd YOUR_UNITY_PROJECT_FOLDER
+
+# Add package to your project
+$ openupm openupm add com.deml.netcore-networking
+```
+
+### Download
+
+[Latest Unity Package](../../releases/latest)
 
 
 
 ## Setup
 
-* Unity 2019.3.13f1 (Should work in older versions as well)
+* Unity 2020.1.0f1 (Works with older versions as well)
 * Precompiled servers an in [ServerWindows](./ServerWindows), run the bat you want to test
-* Open Scenes/NetworkExampleClient.unity and hit play. 
+* Open `Samples/EchoClient/Scenes/NetworkExampleClient.unity` and hit play. 
 
 
 
