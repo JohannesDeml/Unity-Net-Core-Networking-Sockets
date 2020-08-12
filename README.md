@@ -2,7 +2,7 @@
 
 ![Unity Editor Screenshot](./Docs/preview.png)
 
-*Lightweight Unity client for [NetCoreServer](https://github.com/chronoxor/NetCoreServer)*
+*Lightweight Unity client for [NetCoreServer](https://github.com/chronoxor/NetCoreServer)*  
 [![openupm](https://img.shields.io/npm/v/com.deml.netcore-networking?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.deml.netcore-networking/) [![](https://img.shields.io/github/release-date/JohannesDeml/Unity-Net-Core-Networking-Sockets.svg)](https://github.com/supyrb/JohannesDeml/Unity-Net-Core-Networking-Sockets) [![Unity 2018.1 or later](https://img.shields.io/badge/unity-2018.1%20or%20later-green.svg?logo=unity&cacheSeconds=2592000)](https://unity3d.com/get-unity/download/archive)
 
 
