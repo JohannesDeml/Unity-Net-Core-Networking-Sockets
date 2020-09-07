@@ -44,7 +44,7 @@ namespace Supyrb
 
 		[Tooltip("Non-blocking async sending. Not recommended for UDP (those are already non-blocking)")]
 		[SerializeField]
-		private bool sendAsync = true;
+		private bool async = true;
 
 		[SerializeField]
 		private Type type = Type.Tcp;
@@ -61,6 +61,8 @@ namespace Supyrb
 
 		#endregion
 
+		public bool Async => async;
+
 		// Used implementation as interface to allow easy switching
 		private IUnitySocketClient socketClient;
 
@@ -68,7 +70,6 @@ namespace Supyrb
 		private byte[] buffer;
 		private bool disconnecting;
 		private bool applicationQuitting;
-
 		private void Start()
 		{
 			disconnecting = false;
@@ -202,12 +203,27 @@ namespace Supyrb
 			serverIp = serverIpInput;
 			serverPort = serverPortInput;
 			type = typeInput;
+			ValidateSettings();
 			Connect();
+		}
+
+		public void SetAsync(bool async)
+		{
+			this.async = async;
+			ValidateSettings();
+		}
+
+		private void ValidateSettings()
+		{
+			if (async && type == Type.Udp)
+			{
+				Debug.LogWarning("Using UDP with async is not recommended and might lead to unwanted behavior.");
+			}
 		}
 
 		public void SendEcho(byte[] message)
 		{
-			if (sendAsync)
+			if (async)
 			{
 				SendAsync(message);
 			}

@@ -15,7 +15,7 @@
 * Small GC overhead - Usage of MemoryStream
 * Async send and receive - Does not block the Main Thread
 * Easy to use - Queue for fetching the last received messages
-* Tested with local and remote server
+* Tested with local, network and remote server
 
 | Platform | SSL  | TCP  | UDP  |
 | -------- | :--: | :--: | :--: |
@@ -60,7 +60,9 @@ $ openupm openupm add com.deml.netcore-networking
 ## Troubleshooting
 
 * I can't find the samples
-  * The samples are stored in `Assets/NetCoreNetworking/Samples~`. A symlink at `Assets/Samples` points to the folder. That symlink might break when pulling for the first time on Windows. Just run **`Assets/.RelinkSamples.bat`** to regenerate the symlink.
+  * The samples are stored in `Assets/NetCoreNetworking/Samples~`. A symlink at `Assets/Samples` points to the folder. That symlink might break when pulling for the first time on Windows. There are two solutions for it:
+    * Just run **`Assets/.RelinkSamples.bat`** to regenerate the symlink.
+    * [Configure your git to support symlinks](https://stackoverflow.com/a/59761201/3319358)
 * The precompiled server scripts don't work
   * Install Dotnet from https://dotnet.microsoft.com/download
 

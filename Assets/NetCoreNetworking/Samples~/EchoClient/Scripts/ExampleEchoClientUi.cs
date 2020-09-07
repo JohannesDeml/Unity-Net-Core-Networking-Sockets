@@ -43,6 +43,8 @@ namespace Supyrb
 
 		[SerializeField] private Text stateInfoText = null;
 
+		[SerializeField] private Toggle sendAsyncToggle = null;
+
 		#endregion
 
 		private void Start()
@@ -52,6 +54,8 @@ namespace Supyrb
 			udpConnectButton.onClick.AddListener(TriggerUdpConnect);
 			disconnectButton.onClick.AddListener(TriggerDisconnect);
 			sendMessageButton.onClick.AddListener(OnSendEcho);
+			sendAsyncToggle.isOn = client.Async;
+			sendAsyncToggle.onValueChanged.AddListener(OnAsyncToggleChanged);
 		}
 
 		public void UpdateState(IUnitySocketClient socketClient)
@@ -112,6 +116,11 @@ namespace Supyrb
 		{
 			var message = Encoding.UTF8.GetBytes(messageInputField.text);
 			client.SendEcho(message);
+		}
+
+		private void OnAsyncToggleChanged(bool async)
+		{
+			client.SetAsync(async);
 		}
 
 		public void AddResponseText(string messages)
