@@ -60,7 +60,7 @@ $ openupm openupm add com.deml.netcore-networking
 ## Troubleshooting
 
 * I can't find the samples
-  * The samples are stored in `Assets/NetCoreNetworking/Samples~`. A directory symlink at `Assets/Samples` points to the samples. If you see an empty Samples folder in your unity project, try to delete the meta files from the root folders in the samples (e.g. `EchoClient.meta`).
+  * The samples are stored in `Assets/NetCoreNetworking/Samples~`. A symlink at `Assets/Samples` points to the folder. That symlink might break when pulling for the first time on Windows. Just run **`Assets/.RelinkSamples.bat`** to regenerate the symlink.
 * The precompiled server scripts don't work
   * Install Dotnet from https://dotnet.microsoft.com/download
 
