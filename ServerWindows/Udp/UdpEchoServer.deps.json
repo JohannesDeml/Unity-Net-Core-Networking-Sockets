@@ -9,7 +9,7 @@
       "UdpEchoServer/1.0.0": {
         "dependencies": {
           "NDesk.Options.Core": "1.2.5",
-          "NetCoreServer": "3.0.13"
+          "NetCoreServer": "3.0.19"
         },
         "runtime": {
           "UdpEchoServer.dll": {}
@@ -23,7 +23,7 @@
           }
         }
       },
-      "NetCoreServer/3.0.13": {
+      "NetCoreServer/3.0.19": {
         "runtime": {
           "NetCoreServer.dll": {}
         }
@@ -43,7 +43,7 @@
       "path": "ndesk.options.core/1.2.5",
       "hashPath": "ndesk.options.core.1.2.5.nupkg.sha512"
     },
-    "NetCoreServer/3.0.13": {
+    "NetCoreServer/3.0.19": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

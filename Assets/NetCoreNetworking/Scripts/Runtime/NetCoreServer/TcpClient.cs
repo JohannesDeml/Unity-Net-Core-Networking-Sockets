@@ -67,6 +67,14 @@ namespace NetCoreServer
         public long BytesReceived { get; private set; }
 
         /// <summary>
+        /// Option: dual mode socket
+        /// </summary>
+        /// <remarks>
+        /// Specifies whether the Socket is a dual-mode socket used for both IPv4 and IPv6.
+        /// Will work only if socket is bound on IPv6 address.
+        /// </remarks>
+        public bool OptionDualMode { get; set; }
+        /// <summary>
         /// Option: keep alive
         /// </summary>
         /// <remarks>
@@ -132,6 +140,10 @@ namespace NetCoreServer
             // Create a new client socket
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
+            // Apply the option: dual mode (this option must be applied before connecting)
+            if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.DualMode = OptionDualMode;
+
             try
             {
                 // Connect to the server
@@ -143,6 +155,10 @@ namespace NetCoreServer
                 Socket.Close();
                 // Dispose the client socket
                 Socket.Dispose();
+                // Dispose event arguments
+                _connectEventArg.Dispose();
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
 
                 // Call the client disconnected handler
                 SendError(ex.SocketErrorCode);
@@ -217,6 +233,11 @@ namespace NetCoreServer
                 // Dispose the client socket
                 Socket.Dispose();
 
+                // Dispose event arguments
+                _connectEventArg.Dispose();
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
+
                 // Update the client socket disposed flag
                 IsSocketDisposed = true;
             }
@@ -275,6 +296,10 @@ namespace NetCoreServer
 
             // Create a new client socket
             Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            // Apply the option: dual mode (this option must be applied before connecting)
+            if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
+                Socket.DualMode = OptionDualMode;
 
             // Async connect to the server
             IsConnecting = true;
