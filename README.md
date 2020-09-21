@@ -14,7 +14,7 @@
 * Precompiled server executables for windows for easy testing
 * Small GC overhead - Usage of MemoryStream
 * Async send and receive - Does not block the Main Thread
-* Easy to use - Queue for fetching the last received messages
+* Low level - just plain UPD/TCP/SSL
 * Tested with local, network and remote server
 
 | Platform | SSL  | TCP  | UDP  |
