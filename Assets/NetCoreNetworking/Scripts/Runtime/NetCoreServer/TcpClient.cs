@@ -111,6 +111,18 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
         /// <remarks>
@@ -138,11 +150,17 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = CreateSocket();
+
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
+
+            // Call the client connecting handler
+            OnConnecting();
 
             try
             {
@@ -151,23 +169,33 @@ namespace NetCoreServer
             }
             catch (SocketException ex)
             {
+                // Call the client error handler
+                SendError(ex.SocketErrorCode);
+
+                // Reset event args
+                _connectEventArg.Completed -= OnAsyncCompleted;
+                _receiveEventArg.Completed -= OnAsyncCompleted;
+                _sendEventArg.Completed -= OnAsyncCompleted;
+
+                // Call the client disconnecting handler
+                OnDisconnecting();
+
                 // Close the client socket
                 Socket.Close();
+
                 // Dispose the client socket
                 Socket.Dispose();
+
                 // Dispose event arguments
                 _connectEventArg.Dispose();
                 _receiveEventArg.Dispose();
                 _sendEventArg.Dispose();
 
                 // Call the client disconnected handler
-                SendError(ex.SocketErrorCode);
                 OnDisconnected();
+
                 return false;
             }
-
-            // Update the client socket disposed flag
-            IsSocketDisposed = false;
 
             // Apply the option: keep alive
             if (OptionKeepAlive)
@@ -217,6 +245,9 @@ namespace NetCoreServer
             _connectEventArg.Completed -= OnAsyncCompleted;
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
+
+            // Call the client disconnecting handler
+            OnDisconnecting();
 
             try
             {
@@ -295,14 +326,22 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket = CreateSocket();
+
+            // Update the client socket disposed flag
+            IsSocketDisposed = false;
 
             // Apply the option: dual mode (this option must be applied before connecting)
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
-            // Async connect to the server
+            // Update the connecting flag
             IsConnecting = true;
+
+            // Call the client connecting handler
+            OnConnecting();
+
+            // Async connect to the server
             if (!Socket.ConnectAsync(_connectEventArg))
                 ProcessConnect(_connectEventArg);
 
@@ -420,9 +459,6 @@ namespace NetCoreServer
 
             lock (_sendLock)
             {
-                // Detect multiple send handlers
-                bool sendRequired = _sendBufferMain.IsEmpty || _sendBufferFlush.IsEmpty;
-
                 // Fill the main send buffer
                 _sendBufferMain.Append(buffer, offset, size);
 
@@ -430,12 +466,14 @@ namespace NetCoreServer
                 BytesPending = _sendBufferMain.Size;
 
                 // Avoid multiple send handlers
-                if (!sendRequired)
+                if (_sending)
                     return true;
-            }
+                else
+                    _sending = true;
 
-            // Try to send the main buffer
-            Task.Factory.StartNew(TrySend);
+                // Try to send the main buffer
+                TrySend();
+            }
 
             return true;
         }
@@ -545,12 +583,10 @@ namespace NetCoreServer
         /// </summary>
         private void TrySend()
         {
-            if (_sending)
-                return;
-
             if (!IsConnected)
                 return;
 
+            bool empty = false;
             bool process = true;
 
             while (process)
@@ -559,10 +595,7 @@ namespace NetCoreServer
 
                 lock (_sendLock)
                 {
-                    if (_sending)
-                        return;
-
-                    // Swap send buffers
+                    // Is previous socket send in progress?
                     if (_sendBufferFlush.IsEmpty)
                     {
                         // Swap flush and main buffers
@@ -573,16 +606,23 @@ namespace NetCoreServer
                         BytesPending = 0;
                         BytesSending += _sendBufferFlush.Size;
 
-                        _sending = !_sendBufferFlush.IsEmpty;
+                        // Check if the flush buffer is empty
+                        if (_sendBufferFlush.IsEmpty)
+                        {
+                            // Need to call empty send buffer handler
+                            empty = true;
+
+                            // End sending process
+                            _sending = false;
+                        }
                     }
                     else
                         return;
                 }
 
-                // Check if the flush buffer is empty
-                if (_sendBufferFlush.IsEmpty)
+                // Call the empty send buffer handler
+                if (empty)
                 {
-                    // Call the empty send buffer handler
                     OnEmpty();
                     return;
                 }
@@ -625,6 +665,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
             {
@@ -675,15 +718,19 @@ namespace NetCoreServer
                 // Update the connected flag
                 IsConnected = true;
 
+                // Try to receive something from the server
+                TryReceive();
+
+                // Check the socket disposed state: in some rare cases it might be disconnected while receiving!
+                if (IsSocketDisposed)
+                    return;
+
                 // Call the client connected handler
                 OnConnected();
 
                 // Call the empty send buffer handler
                 if (_sendBufferMain.IsEmpty)
                     OnEmpty();
-
-                // Try to receive something from the server
-                TryReceive();
             }
             else
             {
@@ -769,8 +816,6 @@ namespace NetCoreServer
                 OnSent(size, BytesPending + BytesSending);
             }
 
-            _sending = false;
-
             // Try to send again if the client is valid
             if (e.SocketError == SocketError.Success)
                 return true;
@@ -787,9 +832,17 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
+        /// Handle client connecting notification
+        /// </summary>
+        protected virtual void OnConnecting() {}
+        /// <summary>
         /// Handle client connected notification
         /// </summary>
         protected virtual void OnConnected() {}
+        /// <summary>
+        /// Handle client disconnecting notification
+        /// </summary>
+        protected virtual void OnDisconnecting() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>

@@ -116,6 +116,18 @@ namespace NetCoreServer
         public bool IsConnected { get; private set; }
 
         /// <summary>
+        /// Create a new socket object
+        /// </summary>
+        /// <remarks>
+        /// Method may be override if you need to prepare some specific socket object in your implementation.
+        /// </remarks>
+        /// <returns>Socket object</returns>
+        protected virtual Socket CreateSocket()
+        {
+            return new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+        }
+
+        /// <summary>
         /// Connect the client (synchronous)
         /// </summary>
         /// <returns>'true' if the client was successfully connected, 'false' if the client failed to connect</returns>
@@ -135,7 +147,7 @@ namespace NetCoreServer
             _sendEventArg.Completed += OnAsyncCompleted;
 
             // Create a new client socket
-            Socket = new Socket(Endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            Socket = CreateSocket();
 
             // Update the client socket disposed flag
             IsSocketDisposed = false;
@@ -148,13 +160,46 @@ namespace NetCoreServer
             if (Socket.AddressFamily == AddressFamily.InterNetworkV6)
                 Socket.DualMode = OptionDualMode;
 
-            // Bind the acceptor socket to the IP endpoint
-            if (OptionMulticast)
-                Socket.Bind(Endpoint);
-            else
+            // Call the client connecting handler
+            OnConnecting();
+
+            try
             {
-                var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
-                Socket.Bind(endpoint);
+                // Bind the acceptor socket to the IP endpoint
+                if (OptionMulticast)
+                    Socket.Bind(Endpoint);
+                else
+                {
+                    var endpoint = new IPEndPoint((Endpoint.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any, 0);
+                    Socket.Bind(endpoint);
+                }
+            }
+            catch (SocketException ex)
+            {
+                // Call the client error handler
+                SendError(ex.SocketErrorCode);
+
+                // Reset event args
+                _receiveEventArg.Completed -= OnAsyncCompleted;
+                _sendEventArg.Completed -= OnAsyncCompleted;
+
+                // Call the client disconnecting handler
+                OnDisconnecting();
+
+                // Close the client socket
+                Socket.Close();
+
+                // Dispose the client socket
+                Socket.Dispose();
+
+                // Dispose event arguments
+                _receiveEventArg.Dispose();
+                _sendEventArg.Dispose();
+
+                // Call the client disconnected handler
+                OnDisconnected();
+
+                return false;
             }
 
             // Prepare receive endpoint
@@ -192,6 +237,9 @@ namespace NetCoreServer
             // Reset event args
             _receiveEventArg.Completed -= OnAsyncCompleted;
             _sendEventArg.Completed -= OnAsyncCompleted;
+
+            // Call the client disconnecting handler
+            OnDisconnecting();
 
             try
             {
@@ -448,7 +496,7 @@ namespace NetCoreServer
             _sendEndpoint = endpoint;
 
             // Try to send the main buffer
-            Task.Factory.StartNew(TrySend);
+            TrySend();
 
             return true;
         }
@@ -489,15 +537,13 @@ namespace NetCoreServer
             {
                 // Receive datagram from the server
                 int received = Socket.ReceiveFrom(buffer, (int)offset, (int)size, SocketFlags.None, ref endpoint);
-                if (received > 0)
-                {
-                    // Update statistic
-                    DatagramsReceived++;
-                    BytesReceived += received;
 
-                    // Call the datagram received handler
-                    OnReceived(endpoint, buffer, offset, size);
-                }
+                // Update statistic
+                DatagramsReceived++;
+                BytesReceived += received;
+
+                // Call the datagram received handler
+                OnReceived(endpoint, buffer, offset, size);
 
                 return received;
             }
@@ -600,6 +646,9 @@ namespace NetCoreServer
         /// </summary>
         private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
         {
+            if (IsSocketDisposed)
+                return;
+
             // Determine which type of operation just completed and call the associated handler
             switch (e.LastOperation)
             {
@@ -633,22 +682,19 @@ namespace NetCoreServer
                 return;
             }
 
+            // Received some data from the server
             long size = e.BytesTransferred;
 
-            // Received some data from the server
-            if (size > 0)
-            {
-                // Update statistic
-                DatagramsReceived++;
-                BytesReceived += size;
+            // Update statistic
+            DatagramsReceived++;
+            BytesReceived += size;
 
-                // Call the datagram received handler
-                OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
+            // Call the datagram received handler
+            OnReceived(e.RemoteEndPoint, _receiveBuffer.Data, 0, size);
 
-                // If the receive buffer is full increase its size
-                if (_receiveBuffer.Capacity == size)
-                    _receiveBuffer.Reserve(2 * size);
-            }
+            // If the receive buffer is full increase its size
+            if (_receiveBuffer.Capacity == size)
+                _receiveBuffer.Reserve(2 * size);
         }
 
         /// <summary>
@@ -691,9 +737,17 @@ namespace NetCoreServer
         #region Session handlers
 
         /// <summary>
+        /// Handle client connecting notification
+        /// </summary>
+        protected virtual void OnConnecting() {}
+        /// <summary>
         /// Handle client connected notification
         /// </summary>
         protected virtual void OnConnected() {}
+        /// <summary>
+        /// Handle client disconnecting notification
+        /// </summary>
+        protected virtual void OnDisconnecting() {}
         /// <summary>
         /// Handle client disconnected notification
         /// </summary>
