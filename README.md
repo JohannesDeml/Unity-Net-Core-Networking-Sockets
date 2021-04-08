@@ -5,7 +5,7 @@
 *Lightweight Unity client for [NetCoreServer](https://github.com/chronoxor/NetCoreServer)*  
 [![openupm](https://img.shields.io/npm/v/com.deml.netcore-networking?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.deml.netcore-networking/) [![](https://img.shields.io/github/release-date/JohannesDeml/Unity-Net-Core-Networking-Sockets.svg)](https://github.com/supyrb/JohannesDeml/Unity-Net-Core-Networking-Sockets) [![Unity 2018.1 or later](https://img.shields.io/badge/unity-2018.1%20or%20later-green.svg?logo=unity&cacheSeconds=2592000)](https://unity3d.com/get-unity/download/archive)
 
-
+This is an example for a unity client that works with a [NetCoreServer](https://github.com/chronoxor/NetCoreServer) server application. The latest version is built with Unity 2020.3.1f1 and NetCoreServer 5.15.
 
 ## Features
 
@@ -51,9 +51,10 @@ $ openupm openupm add com.deml.netcore-networking
 
 ## Setup
 
-* Unity 2020.1.0f1 (Works with older versions as well)
+* Unity 2020.3.1f1 (Works with older versions as well)
 * Precompiled servers an in [ServerWindows](./ServerWindows), run the bat you want to test
 * Open `Samples/EchoClient/Scenes/NetworkExampleClient.unity` and hit play. 
+* Default port is `3333` when running the bat files.
 
 
 
@@ -71,7 +72,7 @@ $ openupm openupm add com.deml.netcore-networking
 ## TODO
 
 * Split messages back into the sent chunks
-* Repeating Asnyc sending results in some packages not being sent for UDP
+* Fix bug: Repeated asnyc sending results in some packages not being sent for UDP
 * Support Websockets
 
 
