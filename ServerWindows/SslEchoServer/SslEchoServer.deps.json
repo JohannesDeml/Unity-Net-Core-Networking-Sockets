@@ -1,18 +1,18 @@
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v3.0",
+    "name": ".NETCoreApp,Version=v5.0",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETCoreApp,Version=v3.0": {
-      "UdpEchoServer/1.0.0": {
+    ".NETCoreApp,Version=v5.0": {
+      "SslEchoServer/1.0.0": {
         "dependencies": {
           "NDesk.Options.Core": "1.2.5",
-          "NetCoreServer": "3.0.19"
+          "NetCoreServer": "5.0.14"
         },
         "runtime": {
-          "UdpEchoServer.dll": {}
+          "SslEchoServer.dll": {}
         }
       },
       "NDesk.Options.Core/1.2.5": {
@@ -23,7 +23,7 @@
           }
         }
       },
-      "NetCoreServer/3.0.19": {
+      "NetCoreServer/5.0.14": {
         "runtime": {
           "NetCoreServer.dll": {}
         }
@@ -31,7 +31,7 @@
     }
   },
   "libraries": {
-    "UdpEchoServer/1.0.0": {
+    "SslEchoServer/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -43,7 +43,7 @@
       "path": "ndesk.options.core/1.2.5",
       "hashPath": "ndesk.options.core.1.2.5.nupkg.sha512"
     },
-    "NetCoreServer/3.0.19": {
+    "NetCoreServer/5.0.14": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

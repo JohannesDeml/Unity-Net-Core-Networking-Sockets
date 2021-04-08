@@ -1,1 +1,0 @@
-Install Dotnet from https://dotnet.microsoft.com/download
